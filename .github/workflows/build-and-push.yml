@@ -1,0 +1,39 @@
+name: Build binaries and docker containers and publish them
+
+on:
+  push:
+    tags:
+      - 'v[0-9]+.[0-9]+.[0-9]+'
+jobs:
+  main:
+    name: Build and push Github Actions Runners Exporter to ECR
+    runs-on: ubuntu-20.04
+    steps:
+      - name: Checkout Source code
+        uses: actions/checkout@v3
+
+      - name: Build docker image
+        run: |
+          docker build --tag github-actions-runners-exporter .
+
+      #- name: Configure AWS credentials
+      #  uses: aws-actions/configure-aws-credentials@v1
+      #  with:
+      #    aws-access-key-id: ${{ secrets.AWS_MAINNET_ACCESS_KEY_ID }}
+      #    aws-secret-access-key: ${{ secrets.AWS_MAINNET_SECRET_ACCESS_KEY }}
+      #    aws-region: us-east-1
+
+      #- name: Login to ECR
+      #  uses: docker/login-action@v1
+      #  with:
+      #    registry: ${{ vars.ECR_PUBLIC_HOST }}
+      #    username: ${{ secrets.AWS_MAINNET_ACCESS_KEY_ID }}
+      #    password: ${{ secrets.AWS_MAINNET_SECRET_ACCESS_KEY }}
+
+      #- name: Push image to ECR
+      #  env:
+      #    LOCAL_IMAGE: github-actions-runners-exporter
+      #    ECR_PUSH_IMAGE: ${{ vars.ECR_PUBLIC_REGISTRY }}github-actions-runners-exporter
+      #  run: |
+      #    docker tag ${{ env.LOCAL_IMAGE }} ${{ env.ECR_PUSH_IMAGE }}:${GITHUB_REF_NAME}
+      #    docker push ${{ env.ECR_PUSH_IMAGE }}:${GITHUB_REF_NAME}
