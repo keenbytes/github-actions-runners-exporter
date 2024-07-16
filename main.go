@@ -3,7 +3,7 @@ package main
 import (
 	"encoding/json"
 	"fmt"
-	gocli "github.com/MikolajGasior/go-mod-cli"
+	"github.com/mikolajgs/broccli"
 	"github.com/prometheus/client_golang/prometheus"
 	"github.com/prometheus/client_golang/prometheus/promauto"
 	"github.com/prometheus/client_golang/prometheus/promhttp"
@@ -16,29 +16,31 @@ import (
 )
 
 func main() {
-	cli := gocli.NewCLI("github-actions-runners-exporter", "GitHub Actions' runners exporter for Prometheus", "Mikolaj Gasior <mg@forthcoming.systems>")
+	cli := broccli.NewCLI("github-actions-runners-exporter", "GitHub Actions' runners exporter for Prometheus", "infra-team@cardinals")
 	cmdRun := cli.AddCmd("run", "Runs the daemon, requires GITHUB_TOKEN environment variable", runHandler)
-	cmdRun.AddFlag("organization", "o", "", "GitHub Organization owner of the runners", gocli.TypeString|gocli.Required, nil)
-	cmdRun.AddFlag("sleep", "s", "", "Seconds between each request to GitHub API", gocli.TypeInt|gocli.Required, nil)
-	cmdRun.AddFlag("port", "p", "", "Port to expose /metrics endpoint on", gocli.TypeInt|gocli.Required, nil)
+	cmdRun.AddFlag("organization", "o", "", "GitHub Organization owner of the runners", broccli.TypeString, broccli.IsRequired)
+	cmdRun.AddFlag("sleep", "s", "", "Seconds between each request to GitHub API", broccli.TypeInt, broccli.IsRequired)
+	cmdRun.AddFlag("port", "p", "", "Port to expose /metrics endpoint on", broccli.TypeInt, broccli.IsRequired)
 	_ = cli.AddCmd("version", "Prints version", versionHandler)
 	if len(os.Args) == 2 && (os.Args[1] == "-v" || os.Args[1] == "--version") {
 		os.Args = []string{"App", "version"}
 	}
-	os.Exit(cli.Run(os.Stdout, os.Stderr))
+	os.Exit(cli.Run())
 }
 
-func versionHandler(c *gocli.CLI) int {
+func versionHandler(c *broccli.CLI) int {
 	fmt.Fprintf(os.Stdout, VERSION+"\n")
 	return 0
 }
 
-func runHandler(cli *gocli.CLI) int {
+func runHandler(cli *broccli.CLI) int {
 	if os.Getenv("GITHUB_TOKEN") == "" {
 		fmt.Fprint(os.Stderr, "!!! GITHUB_TOKEN environment variable is missing\n")
 		return 1
 	}
 
+	// TODO: This one doesn't seem to be too useful as GitHub does not clean up runners
+	// from the list straight away.  It's done after 14 days or so.
 	totalCount := promauto.NewGauge(prometheus.GaugeOpts{
 		Namespace: "github_actions",
 		Subsystem: "runners",
@@ -54,6 +56,8 @@ func runHandler(cli *gocli.CLI) int {
 	})
 	var response Response
 
+	// Periodally call GitHub API for number of runners, parse the response into Response struct
+	// and set prometheus' Gauge value
 	go func() {
 		for {
 			// We are never going to have more than 100 runners so getting page 1 only

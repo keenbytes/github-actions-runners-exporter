@@ -1,0 +1,34 @@
+name: Test build
+
+on:
+  pull_request:
+    branches:
+      - main
+    
+jobs:
+  main:
+    name: Build and run
+    runs-on: ubuntu-20.04
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v3
+
+      - name: Call action get-ref-properties
+        id: get-ref-properties
+        uses: Cardinal-Cryptography/github-actions/get-ref-properties@v4
+
+      - name: Build docker image
+        run: |
+          docker build --tag garu-${{ steps.get-ref-properties.outputs.sha }} -f Dockerfile .
+
+      - name: Run docker containers
+        run: |
+          docker run --rm \
+            --name test-garu-${{ steps.get-ref-properties.outputs.sha }} \
+            garu-${{ steps.get-ref-properties.outputs.sha }}
+
+      - name: Remove docker container
+        if: always()
+        run: |
+          docker rm -f test-garu-${{ steps.get-ref-properties.outputs.sha }} || true
+
