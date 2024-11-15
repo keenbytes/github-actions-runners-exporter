@@ -60,6 +60,9 @@ func runHandler(cli *broccli.CLI) int {
 	// and set prometheus' Gauge value
 	go func() {
 		for {
+			// flag is already validated by cli lib
+			sleepInt, _ := strconv.Atoi(cli.Flag("sleep"))
+
 			// We are never going to have more than 100 runners so getting page 1 only
 			req, err := http.NewRequest("GET", fmt.Sprintf("https://api.github.com/orgs/%s/actions/runners?per_page=100&page=1", cli.Flag("organization")), strings.NewReader(""))
 			if err != nil {
@@ -74,6 +77,7 @@ func runHandler(cli *broccli.CLI) int {
 			resp, err := c.Do(req)
 			if err != nil {
 				fmt.Fprint(os.Stderr, "!!! Error making request to GitHub API\n")
+				time.Sleep(time.Duration(sleepInt*10) * time.Second)
 				continue
 			}
 
@@ -88,8 +92,6 @@ func runHandler(cli *broccli.CLI) int {
 			totalCount.Set(float64(response.TotalCount))
 			totalCountOnline.Set(float64(response.TotalCountOnline()))
 
-			// flag is already validated by cli lib
-			sleepInt, _ := strconv.Atoi(cli.Flag("sleep"))
 			time.Sleep(time.Duration(sleepInt) * time.Second)
 		}
 	}()
