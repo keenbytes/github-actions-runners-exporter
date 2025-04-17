@@ -1,10 +1,10 @@
 module github.com/Cardinal-Cryptography/github-actions-runners-exporter
 
-go 1.20
+go 1.22.1
 
 require (
-	github.com/mikolajgs/broccli v2.0.0+incompatible
 	github.com/prometheus/client_golang v1.16.0
+	gopkg.pl/phings/broccli/v2 v2.2.3
 )
 
 require (
