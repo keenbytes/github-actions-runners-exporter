@@ -30,5 +30,5 @@ google.golang.org/protobuf v1.26.0-rc.1/go.mod h1:jlhhOSvTdKEhbULTjvd4ARK9grFBp0
 google.golang.org/protobuf v1.26.0/go.mod h1:9q0QmTI4eRPtz6boOQmLYwt+qCgq0jsYwAQnmE0givc=
 google.golang.org/protobuf v1.30.0 h1:kPPoIgf3TsEvrm0PFe15JQ+570QVxYzEvvHqChK+cng=
 google.golang.org/protobuf v1.30.0/go.mod h1:HV8QOd/L58Z+nl8r43ehVNZIU/HEI6OcFqwMG9pJV4I=
-gopkg.pl/phings/broccli/v2 v2.2.3 h1:s4uDU5bHYAsZrk8LbBhBhEVFGKFvD66h4pMjoLGkBIQ=
-gopkg.pl/phings/broccli/v2 v2.2.3/go.mod h1:vLRSb+fCXrKzPw0OYtpEMHF0jNGrydTb2IkT0ODKgjw=
+gopkg.pl/mikogs/broccli/v3 v3.0.1 h1:MBFTJIH+Rrmu5FuuC5a6WYuI4xolOwmXZEi91cmUs5I=
+gopkg.pl/mikogs/broccli/v3 v3.0.1/go.mod h1:CC2HMcHuZ9zkaXBewqeB+aMR+knQmSZFkC/gvgvgzpw=

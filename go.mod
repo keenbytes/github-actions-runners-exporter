@@ -4,7 +4,7 @@ go 1.22.1
 
 require (
 	github.com/prometheus/client_golang v1.16.0
-	gopkg.pl/phings/broccli/v2 v2.2.3
+	gopkg.pl/mikogs/broccli/v3 v3.0.1
 )
 
 require (

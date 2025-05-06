@@ -3,7 +3,7 @@ package main
 import (
 	"encoding/json"
 	"fmt"
-	"gopkg.pl/phings/broccli/v2"
+	"gopkg.pl/mikogs/broccli/v3"
 	"github.com/prometheus/client_golang/prometheus"
 	"github.com/prometheus/client_golang/prometheus/promauto"
 	"github.com/prometheus/client_golang/prometheus/promhttp"
@@ -13,27 +13,28 @@ import (
 	"strconv"
 	"strings"
 	"time"
+	"context"
 )
 
 func main() {
-	cli := broccli.NewCLI("github-actions-runners-exporter", "GitHub Actions' runners exporter for Prometheus", "infra-team@cardinals")
-	cmdRun := cli.AddCmd("run", "Runs the daemon, requires GITHUB_TOKEN environment variable", runHandler)
-	cmdRun.AddFlag("organization", "o", "", "GitHub Organization owner of the runners", broccli.TypeString, broccli.IsRequired)
-	cmdRun.AddFlag("sleep", "s", "", "Seconds between each request to GitHub API", broccli.TypeInt, broccli.IsRequired)
-	cmdRun.AddFlag("port", "p", "", "Port to expose /metrics endpoint on", broccli.TypeInt, broccli.IsRequired)
-	_ = cli.AddCmd("version", "Prints version", versionHandler)
+	cli := broccli.NewBroccli("github-actions-runners-exporter", "GitHub Actions' runners exporter for Prometheus", "infra-team@cardinals")
+	cmdRun := cli.Command("run", "Runs the daemon, requires GITHUB_TOKEN environment variable", runHandler)
+	cmdRun.Flag("organization", "o", "", "GitHub Organization owner of the runners", broccli.TypeString, broccli.IsRequired)
+	cmdRun.Flag("sleep", "s", "", "Seconds between each request to GitHub API", broccli.TypeInt, broccli.IsRequired)
+	cmdRun.Flag("port", "p", "", "Port to expose /metrics endpoint on", broccli.TypeInt, broccli.IsRequired)
+	_ = cli.Command("version", "Prints version", versionHandler)
 	if len(os.Args) == 2 && (os.Args[1] == "-v" || os.Args[1] == "--version") {
 		os.Args = []string{"App", "version"}
 	}
-	os.Exit(cli.Run())
+	os.Exit(cli.Run(context.Background()))
 }
 
-func versionHandler(c *broccli.CLI) int {
+func versionHandler(ctx context.Context, c *broccli.Broccli) int {
 	fmt.Fprintf(os.Stdout, VERSION+"\n")
 	return 0
 }
 
-func runHandler(cli *broccli.CLI) int {
+func runHandler(ctx context.Context, cli *broccli.Broccli) int {
 	if os.Getenv("GITHUB_TOKEN") == "" {
 		fmt.Fprint(os.Stderr, "!!! GITHUB_TOKEN environment variable is missing\n")
 		return 1
